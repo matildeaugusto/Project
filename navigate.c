@@ -1,95 +1,94 @@
+/*
+ * File: navigate.c
+ * Author: Matilde and Eduardo
+ * Date: September 13, 2024
+ * Description: This file contains the main function of the program, which handles navigation and processing of a board from an input file. 
+ *              The program validates arguments, reads and writes files, allocates and frees memory for the board, and executes tasks based on a specific value.
+ * 
+ * Main Functions:
+ * - main: The main function of the program that manages the flow of reading, processing, and writing data.
+ */
+
 #include "navigate.h"
+#include "file_utils.h"
+#include "board_utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-/**
- * @brief Main function of the program.
- *
- * This function handles the command-line arguments, validates the file extension,
- * opens the input and output files, processes the first line of the input file, 
- * and invokes the appropriate task function based on the value of 'k'.
- *
- * @param argc Number of command-line arguments.
- * @param argv Array of command-line argument strings.
- * @return EXIT_SUCCESS if the program completes successfully, 
- *         EXIT_FAILURE if an error occurs.
+/*
+ * Function: main
+ * Description: Main function of the program. Manages the execution of the program based on the provided arguments, processes input and output files, 
+ *              allocates and deallocates memory for the board, and performs different tasks based on the value of 'k'.
+ * Parameters:
+ *   argc - Number of arguments passed to the program
+ *   argv - Array of strings containing the program arguments
+ * Return:
+ *   EXIT_SUCCESS if the program executes successfully, EXIT_FAILURE otherwise
  */
 int main(int argc, char *argv[]) {
-  int L, C, k, l1, c1, l2, c2;
+    int rows, cols, taskId, startRow, startCol, endRow, endCol;
 
-  // Check if the correct number of arguments is provided
-  if (argc != 2) {
-    fprintf(stderr, "Usage: %s <filename>.1maps\n", argv[0]);
-    return EXIT_FAILURE;
-  }
-
-  // Validate the file extension
-  if (!valida_extensao(argv[1])) {
-    fprintf(stderr, "Error: The file must have the extension %s\n", EXTENSAO_MAPS);
-    return EXIT_FAILURE;
-  }
-
-  // Open the input file for reading
-  FILE *input_file = abre_arquivo(argv[1], "r");
-  if (!input_file) return EXIT_FAILURE;
-
-  // Generate the name of the output file
-  char output_filename[MAX_LINE_LENGTH];
-  strncpy(output_filename, argv[1], strlen(argv[1]) - 6);
-  strcat(output_filename, ".sol1maps");
-
-  // Open the output file for writing
-  FILE *output_file = abre_arquivo(output_filename, "w");
-  if (!output_file) {
-    fclose(input_file);
-    return EXIT_FAILURE;
-  }
-
-  // Read the first line from the input file
-  char line[MAX_LINE_LENGTH];
-  if (fgets(line, sizeof(line), input_file)) {
-    // Parse the values from the first line
-    int num_values = sscanf(line, "%d %d %d %d %d %d %d", &L, &C, &k, &l1, &c1, &l2, &c2);
-    fprintf(output_file, "%s\n", line);
-
-      // Invoke the appropriate task function based on the value of 'k'
-    if (k > 0) {
-      task1(output_file);
-    } else if (k < 0) {
-      task2(output_file);
-    } else {
-      task3(output_file);
+    // Check if the correct number of arguments is provided
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <file>.1maps\n", argv[0]);
+        return EXIT_FAILURE;
     }
-  }
 
-  // Close the files
-  fclose(input_file);
-  fclose(output_file);
-  return EXIT_SUCCESS;
-}
+    // Validate the file extension
+    if (!validate_extension(argv[1])) {
+        fprintf(stderr, "Error: The file must have the extension %s\n", EXTENSION_MAPS);
+        return EXIT_FAILURE;
+    }
 
-/**
- * @brief Validates if the given filename has the correct extension.
- *
- * @param filename The name of the file to check.
- * @return 1 if the filename has the extension ".1maps", 0 otherwise.
- */
-int valida_extensao(const char *filename) {
-    return (strlen(filename) >= 6 && strcmp(filename + strlen(filename) - 6, EXTENSAO_MAPS) == 0);
-}
+    // Open the input and output files
+    FILE *inputFile = open_file(argv[1], "r");
+    if (!inputFile) return EXIT_FAILURE;
 
-/**
- * @brief Opens a file with the specified mode.
- *
- * @param filename The name of the file to open.
- * @param mode The mode in which to open the file (e.g., "r", "w").
- * @return Pointer to the opened file, or NULL if the file cannot be opened.
- */
-FILE *abre_arquivo(const char *filename, const char *mode) {
-  FILE *file = fopen(filename, mode);
-  if (!file) {
-    perror("Error opening file");
-  }
-  return file;
+    FILE *outputFile = create_output_file(argv[1], "sol1maps");
+    if (!outputFile) {
+        fclose(inputFile);
+        return EXIT_FAILURE;
+    }
+
+    // Read the first line of the input file
+    char line[MAX_LINE_LENGTH];
+    if (!read_first_line(inputFile, line, &rows, &cols, &taskId, &startRow, &startCol, &endRow, &endCol)) {
+        fclose(inputFile);
+        fclose(outputFile);
+        return EXIT_FAILURE;
+    }
+
+    // Write the header to the output file
+    fprintf(outputFile, "%s", line);
+
+    // Allocate the board and read its data
+    int **board = allocate_board(rows, cols);
+    if (!board || !read_board(inputFile, board, rows, cols)) {
+        free_board(board, rows);
+        fclose(inputFile);
+        fclose(outputFile);
+        return EXIT_FAILURE;
+    }
+
+    // Write the board to the output file (for debugging purposes)
+    print_board(outputFile, board, rows, cols);
+
+    // Invoke the appropriate task function based on the value of 'taskId'
+    if (taskId > 0) {
+        task1(outputFile);
+    } else if (taskId < 0) {
+        task2(outputFile);
+    } else {
+        task3(outputFile);
+    }
+
+    // Free the memory allocated for the board
+    free_board(board, rows);
+
+    // Close the files
+    fclose(inputFile);
+    fclose(outputFile);
+
+    return EXIT_SUCCESS;
 }
