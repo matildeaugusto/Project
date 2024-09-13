@@ -8,7 +8,7 @@
  * @param output_file Pointer to the file where the message should be written.
  */
 void task1(FILE *output_file) {
-  fprintf(output_file, "Executing task1: k > 0\n");
+    fprintf(output_file, "Executing task1: k > 0\n");
 }
 
 /**
@@ -19,7 +19,7 @@ void task1(FILE *output_file) {
  * @param output_file Pointer to the file where the message should be written.
  */
 void task2(FILE *output_file) {
-  fprintf(output_file, "Executing task2: k < 0\n");
+    fprintf(output_file, "Executing task2: k < 0\n");
 }
 
 /**
@@ -30,5 +30,5 @@ void task2(FILE *output_file) {
  * @param output_file Pointer to the file where the message should be written.
  */
 void task3(FILE *output_file) {
-  fprintf(output_file, "Executing task3: k == 0\n");
+    fprintf(output_file, "Executing task3: k == 0\n");
 }
