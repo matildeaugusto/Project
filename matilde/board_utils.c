@@ -4,7 +4,8 @@
 
 /*
  * Function: allocate_board
- * Description: Allocates memory for a board with specified number of rows and columns. Returns a pointer to the allocated board, or NULL if allocation fails.
+ * Description: Allocates memory for a board with specified number of rows and columns.
+ *              Returns a pointer to the allocated board, or NULL if allocation fails.
  * Parameters:
  *   rows - Number of rows in the board
  *   cols - Number of columns in the board
@@ -12,13 +13,24 @@
  *   int** - A pointer to the allocated board, or NULL if memory allocation fails
  */
 int **allocate_board(int rows, int cols) {
+    if (rows <= 0 || cols <= 0) {
+        fprintf(stderr, "Error: Invalid board dimensions (%d x %d)\n", rows, cols);
+        return NULL;
+    }
+
     int **board = (int **)malloc(rows * sizeof(int *));
-    if (!board) return NULL;
+    if (!board) {
+        perror("Error allocating memory for board rows");
+        return NULL;
+    }
+
     for (int i = 0; i < rows; i++) {
         board[i] = (int *)malloc(cols * sizeof(int));
         if (!board[i]) {
+            // Free previously allocated rows if allocation fails
             for (int j = 0; j < i; j++) free(board[j]);
             free(board);
+            perror("Error allocating memory for board columns");
             return NULL;
         }
     }
@@ -33,15 +45,18 @@ int **allocate_board(int rows, int cols) {
  *   rows - Number of rows in the board
  */
 void free_board(int **board, int rows) {
-    for (int i = 0; i < rows; i++) {
-        free(board[i]);
+    if (board) {
+        for (int i = 0; i < rows; i++) {
+            free(board[i]);  // Free each row
+        }
+        free(board);  // Free the array of row pointers
     }
-    free(board);
 }
 
 /*
  * Function: read_board
  * Description: Reads the board data from the input file and populates the board with the data.
+ *              If the board cannot be read, an error message is printed.
  * Parameters:
  *   input_file - File pointer to the input file
  *   board - Pointer to the board to be populated
@@ -51,31 +66,18 @@ void free_board(int **board, int rows) {
  *   int - 1 if the board was successfully read, 0 otherwise
  */
 int read_board(FILE *input_file, int **board, int rows, int cols) {
+    if (!input_file || !board || rows <= 0 || cols <= 0) {
+        fprintf(stderr, "Error: Invalid parameters for reading board\n");
+        return 0;
+    }
+
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             if (fscanf(input_file, "%d", &board[i][j]) != 1) {
-                fprintf(stderr, "Error: Failed to read board data\n");
+                fprintf(stderr, "Error: Failed to read board data at [%d][%d]\n", i, j);
                 return 0;
             }
         }
     }
     return 1;
-}
-
-/*
- * Function: print_board
- * Description: Writes the board data to the output file. Each row of the board is written on a new line.
- * Parameters:
- *   output_file - File pointer to the output file
- *   board - Pointer to the board to be printed
- *   rows - Number of rows in the board
- *   cols - Number of columns in the board
- */
-void print_board(FILE *output_file, int **board, int rows, int cols) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            fprintf(output_file, "%d ", board[i][j]);
-        }
-        fprintf(output_file, "\n");
-    }
 }

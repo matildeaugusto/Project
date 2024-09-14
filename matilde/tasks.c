@@ -1,4 +1,9 @@
+#include <stdlib.h> 
+#include <limits.h> 
+#include <stdbool.h> 
+#include <stdio.h>
 #include "navigate.h"
+#include "bfs_utils.h"
 
 /**
  * @brief Executes task1 and writes the corresponding message to the output file.
@@ -7,8 +12,11 @@
  *
  * @param output_file Pointer to the file where the message should be written.
  */
-void task1(FILE *output_file) {
-    fprintf(output_file, "Executing task1: k > 0\n");
+void task1(FILE *output_file, int **board, int rows, int cols, int startRow, int startCol, int k) {
+    int result;
+    if (bfs(board, rows, cols, startRow, startCol, k, 1, &result)) {
+        fprintf(output_file, "%d %d %d %d %d %d\n", rows, cols, k, startRow + 1, startCol + 1, result);
+    }
 }
 
 /**
@@ -18,8 +26,11 @@ void task1(FILE *output_file) {
  *
  * @param output_file Pointer to the file where the message should be written.
  */
-void task2(FILE *output_file) {
-    fprintf(output_file, "Executing task2: k < 0\n");
+void task2(FILE *output_file, int **board, int rows, int cols, int startRow, int startCol, int k) {
+    int result;
+    if (bfs(board, rows, cols, startRow, startCol, k, 2, &result)) {
+        fprintf(output_file, "%d %d %d %d %d %d\n", rows, cols, k, startRow + 1, startCol + 1, result);
+    }
 }
 
 /**
