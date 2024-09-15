@@ -64,7 +64,7 @@ int validate_extension(const char *filename) {
 
 /*
  * Function: read_first_line
- * Description: Reads the first line of the input file and parses the values into provided variables.
+ * Description: Reads the first line of the input file and parses the values into provided variables
  * Parameters:
  *   input_file - File pointer to the input file
  *   line - Buffer to store the read line

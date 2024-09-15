@@ -34,7 +34,7 @@ void task1(FILE *output_file, int **board, int rows, int cols, int startRow, int
  *              This function is called when the value of 'k' is less than 0. It uses BFS
  *              to sum all positive energy values within |k| steps from the starting position.
  * Parameters:
- *   output_file - Pointer to the file where the result should be written.
+ *   output_file - Pointer to the file where the result should be written
  *   board - Pointer to the board with energy values.
  *   rows - Number of rows in the board.
  *   cols - Number of columns in the board.

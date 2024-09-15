@@ -9,7 +9,7 @@
  * File: navigate.c
  * Author: Matilde and Eduardo
  * Date: September 14, 2024
- * Description: This file contains the main function of the program, which handles navigation and processing of a board from an input file. 
+ * Description: This file contains the main function of the program, which handles navigation and processing of a board from an input file 
  *              The program validates arguments, reads and writes files, allocates and frees memory for the board, and executes tasks based on a specific value.
  */
 
