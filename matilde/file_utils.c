@@ -78,16 +78,28 @@ int validate_extension(const char *filename) {
  * Return:
  *   int - 1 if the line was successfully read and parsed, 0 otherwise
  */
-int read_first_line(FILE *input_file, char *line, int *rows, int *cols, int *taskId, int *startRow, int *startCol, int *endRow, int *endCol) {
+int read_first_line(FILE *input_file, char *line, int *rows, int *cols, int *startRow, int *startCol, int *taskId, int *endRow, int *endCol) {
     if (fgets(line, MAX_LINE_LENGTH, input_file)) {
-        int parsed = sscanf(line, "%d %d %d %d %d %d %d", rows, cols, taskId, startRow, startCol, endRow, endCol);
-        if (parsed == 7) {
-            return 1;
+        int parsed = sscanf(line, "%d %d %d %d %d", rows, cols, startRow, startCol, taskId);
+
+        if (parsed == 5) {
+            if (*taskId == 0) {
+                parsed = sscanf(line, "%d %d %d %d %d %d %d", rows, cols, startRow, startCol, taskId, endRow, endCol);
+                if (parsed == 7) {
+                    return 1;  
+                } else {
+                    fprintf(stderr, "Error parsing the first line of the file: expected 7 values for taskId = 0, got %d\n", parsed);
+                    return 0;  
+                }
+            } else {
+                return 1;
+            }
         } else {
-            fprintf(stderr, "Error parsing the first line of the file: expected 7 values, got %d\n", parsed);
+            fprintf(stderr, "Error parsing the first line of the file: expected 5 values, got %d\n", parsed);
         }
     } else {
         fprintf(stderr, "Error reading the first line of the file\n");
     }
     return 0;
 }
+

@@ -14,7 +14,9 @@
  */
 
 int main(int argc, char *argv[]) {
-    int rows, cols, taskId, startRow, startCol, endRow, endCol;
+    int rows, cols, startRow, startCol, taskId;
+    int endRow = 0;
+    int endCol = 0;
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <file>.1maps\n", argv[0]);
@@ -40,7 +42,7 @@ int main(int argc, char *argv[]) {
     }
 
     char line[MAX_LINE_LENGTH];
-    if (!read_first_line(inputFile, line, &rows, &cols, &taskId, &startRow, &startCol, &endRow, &endCol)) {
+    if (!read_first_line(inputFile, line, &rows, &cols, &startRow, &startCol, &taskId, &endRow, &endCol)) {
         fprintf(stderr, "Error: Failed to read the first line of the input file\n");
         fclose(inputFile);
         fclose(outputFile);
@@ -66,9 +68,9 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    if (taskId > 0) {
+    if (taskId < 0) {
         task1(outputFile, board, rows, cols, startRow, startCol, taskId);
-    } else if (taskId < 0) {
+    } else if (taskId > 0) {
         task2(outputFile, board, rows, cols, startRow, startCol, taskId);
     } else {
         task3(outputFile);
