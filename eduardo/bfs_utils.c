@@ -103,7 +103,7 @@ int bfs(int **board, int rows, int cols, int startRow, int startCol, int k, int 
         *result = totalSum;
 
     }   else if (taskType == 3){
-        / Função para a Tarefa #3
+        /* Função para a Tarefa #3 */
 void caminhoVerticalHorizontal(int l1, int c1, int l2, int c2, FILE *saida) {
     while (l1 != l2) {
         l1 += (l2 > l1) ? 1 : -1;
