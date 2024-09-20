@@ -1,23 +1,29 @@
-# Definindo o compilador
+# Makefile
+
+# Variáveis
 CC = gcc
+CFLAGS = -Wall -std=c99 -O3
 
-# Definindo os flags do compilador
-CFLAGS = -Wall -g
+# Regras
+all: navigate
 
-# Nome do executável
-TARGET = navigate
+navigate: bfs_utils.o board_utils.o file_utils.o navigate.o tasks.o
+	$(CC) $(CFLAGS) -o navigate bfs_utils.o board_utils.o file_utils.o navigate.o tasks.o
 
-# Regra padrão
-all: $(TARGET)
+bfs_utils.o: bfs_utils.c bfs_utils.h
+	$(CC) $(CFLAGS) -c bfs_utils.c
 
-# Regra para compilar o executável
-$(TARGET): main.o
-	$(CC) $(CFLAGS) -o $(TARGET) main.o
+board_utils.o: board_utils.c board_utils.h
+	$(CC) $(CFLAGS) -c board_utils.c
 
-# Regra para compilar o arquivo objeto
-main.o: main.c
-	$(CC) $(CFLAGS) -c main.c
+file_utils.o: file_utils.c file_utils.h
+	$(CC) $(CFLAGS) -c file_utils.c
 
-# Limpar arquivos gerados
+navigate.o: navigate.c navigate.h
+	$(CC) $(CFLAGS) -c navigate.c
+
+tasks.o: tasks.c
+	$(CC) $(CFLAGS) -c tasks.c
+
 clean:
-	rm -f *.o $(TARGET)
+	rm -f navigate bfs_utils.o board_utils.o file_utils.o navigate.o tasks.o
