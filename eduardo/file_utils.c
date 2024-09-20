@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h> 
+#include <ctype.h>
 
 /*
  * Function: open_file
@@ -14,11 +15,11 @@
  *   FILE* - A pointer to the opened file, or NULL if the file could not be opened
  */
 FILE *open_file(const char *filename, const char *mode) {
-    FILE *file = fopen(filename, mode);
-    if (!file) {
-        fprintf(stderr, "Error opening file %s with mode %s: %s\n", filename, mode, strerror(errno));
-    }
-    return file;
+  FILE *file = fopen(filename, mode);
+  if (!file) {
+    fprintf(stderr, "Error opening file %s with mode %s: %s\n", filename, mode, strerror(errno));
+  }
+  return file;
 }
 
 /*
@@ -32,20 +33,19 @@ FILE *open_file(const char *filename, const char *mode) {
  *   FILE* - A pointer to the created output file, or NULL if the file could not be created
  */
 FILE *create_output_file(const char *filename, const char *extension) {
-    char output_filename[MAX_LINE_LENGTH];
-    // Find the position to insert the new extension
-    const char *dot = strrchr(filename, '.');
-    if (dot && strlen(dot) > 1) {  // Ensure there's an extension
-        snprintf(output_filename, sizeof(output_filename), "%.*s.%s", (int)(dot - filename), filename, extension);
-    } else {
-        snprintf(output_filename, sizeof(output_filename), "%s.%s", filename, extension);
-    }
+  char output_filename[MAX_LINE_LENGTH];
+  const char *dot = strrchr(filename, '.');
+  if (dot && strlen(dot) > 1) {  
+    snprintf(output_filename, sizeof(output_filename), "%.*s.%s", (int)(dot - filename), filename, extension);
+  } else {
+    snprintf(output_filename, sizeof(output_filename), "%s.%s", filename, extension);
+  }
 
-    FILE *output_file = fopen(output_filename, "w");
-    if (!output_file) {
-        fprintf(stderr, "Error creating output file %s: %s\n", output_filename, strerror(errno));
-    }
-    return output_file;
+  FILE *output_file = fopen(output_filename, "w");
+  if (!output_file) {
+    fprintf(stderr, "Error creating output file %s: %s\n", output_filename, strerror(errno));
+  }
+  return output_file;
 }
 
 /*
@@ -57,9 +57,9 @@ FILE *create_output_file(const char *filename, const char *extension) {
  *   int - 1 if the file has the correct extension, 0 otherwise
  */
 int validate_extension(const char *filename) {
-    size_t len = strlen(filename);
-    size_t ext_len = strlen(EXTENSION_MAPS);
-    return (len >= ext_len && strcmp(filename + len - ext_len, EXTENSION_MAPS) == 0);
+  size_t len = strlen(filename);
+  size_t ext_len = strlen(EXTENSION_MAPS);
+  return (len >= ext_len && strcmp(filename + len - ext_len, EXTENSION_MAPS) == 0);
 }
 
 /*
@@ -79,26 +79,22 @@ int validate_extension(const char *filename) {
  *   int - 1 if the line was successfully read and parsed, 0 otherwise
  */
 int read_first_line(FILE *input_file, char *line, int *rows, int *cols, int *startRow, int *startCol, int *taskId, int *endRow, int *endCol) {
-    while (fgets(line, MAX_LINE_LENGTH, input_file)) {
-        if (line[0] != '\n' && line[0] != '\0') {  // Ignorar linhas vazias
-            int parsed = sscanf(line, "%d %d %d %d %d", rows, cols, startRow, startCol, taskId);
-
-            if (parsed == 5) {
-                if (*taskId == 0) {
-                    parsed = sscanf(line, "%d %d %d %d %d %d %d", rows, cols, startRow, startCol, taskId, endRow, endCol);
-                    if (parsed == 7) {
-                        return 1;  
-                    } else {
-                        fprintf(stderr, "Error parsing the first line of the file: expected 7 values for taskId = 0, got %d\n", parsed);
-                        return 0;  
-                    }
-                } else {
-                    return 1;
-                }
-            } else {
-                fprintf(stderr, "Error parsing the first line of the file: expected 5 values, got %d\n", parsed);
-            }
-        }
+  while (fgets(line, MAX_LINE_LENGTH, input_file)) {
+    if (line[0] == '\n' || line[0] == '\0') {
+      continue;
     }
-    return 0;
+
+    int parsed = sscanf(line, "%d %d %d %d %d %d %d", rows, cols, startRow, startCol, taskId, endRow, endCol);
+
+    if (parsed >= 5) {
+      if (*taskId == 0 && parsed != 7) {
+        fprintf(stderr, "Error: Expected 7 values for taskId = 0, got %d\n", parsed);
+        return 0;  
+      }
+      return 1;  
+    } else {
+      fprintf(stderr, "Error parsing the first line of the file: expected at least 5 values, got %d\n", parsed);
+    }
+  }
+  return 0;  
 }
